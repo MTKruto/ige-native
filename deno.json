@@ -1,0 +1,30 @@
+{
+  "name": "@mtkruto/ige-native",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./mod.ts",
+  "tasks": {
+    "build": "deno run --allow-env --allow-read --allow-run --allow-write scripts/build.ts",
+    "test": "deno task build && deno test --allow-ffi --allow-read tests/",
+    "bench": "deno task build && deno bench --allow-ffi --allow-read benchmarks/",
+    "check": "deno fmt --check && deno lint && deno check mod.ts tests/provider_test.ts benchmarks/ige_bench.ts"
+  },
+  "imports": {
+    "@roj/tgcrypto": "jsr:@roj/tgcrypto@1.0.3",
+    "@std/assert": "jsr:@std/assert@1.0.19",
+    "@std/path": "jsr:@std/path@1.1.6"
+  },
+  "publish": {
+    "include": [
+      "artifacts/",
+      "mod.ts",
+      "src/",
+      "COPYING",
+      "COPYING.LESSER",
+      "README.md"
+    ]
+  },
+  "fmt": {
+    "lineWidth": 120
+  }
+}
