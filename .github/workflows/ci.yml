@@ -53,6 +53,27 @@ jobs:
       - run: npm ci --prefix napi
       - run: deno task test
       - run: deno task test:napi
+      - name: Verify reproducible Windows artifacts
+        if: matrix.target == 'windows-x86_64'
+        shell: pwsh
+        run: |
+          $dll = "artifacts/windows-x86_64/mtkruto_ige.dll"
+          $addon = "napi/artifacts/windows-x86_64/mtkruto_ige.node"
+          $dllBefore = (Get-FileHash $dll -Algorithm SHA256).Hash
+          $addonBefore = (Get-FileHash $addon -Algorithm SHA256).Hash
+
+          Start-Sleep -Seconds 2
+          deno task build
+          deno task build:napi
+
+          $dllAfter = (Get-FileHash $dll -Algorithm SHA256).Hash
+          $addonAfter = (Get-FileHash $addon -Algorithm SHA256).Hash
+          if ($dllBefore -ne $dllAfter) {
+            throw "mtkruto_ige.dll is not reproducible."
+          }
+          if ($addonBefore -ne $addonAfter) {
+            throw "mtkruto_ige.node is not reproducible."
+          }
       - name: Commit artifacts
         if: github.event_name == 'push' && github.ref_type == 'branch'
         shell: bash

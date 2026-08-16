@@ -43,7 +43,7 @@ if (Deno.build.os === "darwin") {
 } else if (Deno.build.os === "linux") {
   args.push("-shared", "-Wl,--no-undefined", "-Wl,-z,relro,-z,now");
 } else {
-  args.push("-shared");
+  args.push("-shared", "-Wl,/Brepro");
 }
 args.push(...(Deno.build.arch === "aarch64" ? ["-march=armv8-a+crypto"] : ["-maes", "-msse2"]));
 args.push(source, "-o", output);

@@ -69,6 +69,11 @@
             "msvs_settings": {
               "VCCLCompilerTool": {
                 "WarningLevel": 4
+              },
+              "VCLinkerTool": {
+                "AdditionalOptions": [
+                  "/Brepro"
+                ]
               }
             }
           }
