@@ -1,0 +1,36 @@
+{
+  "name": "@mtkruto/ige-native",
+  "version": "0.1.0",
+  "description": "Hardware-accelerated AES-IGE for MTKruto.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./napi.d.ts",
+      "import": "./napi.js",
+      "default": "./napi.js"
+    },
+    "./napi": {
+      "types": "./napi.d.ts",
+      "import": "./napi.js",
+      "default": "./napi.js"
+    }
+  },
+  "files": [
+    "artifacts/",
+    "LICENSE",
+    "napi.d.ts",
+    "napi.js"
+  ],
+  "scripts": {
+    "build:napi": "node-gyp rebuild --directory ../native && node ../scripts/copy_napi.mjs",
+    "test": "npm run build:napi && node --test ../node_tests/napi_test.mjs"
+  },
+  "engines": {
+    "node": "^20.17.0 || >=22.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "node-gyp": "12.2.0"
+  }
+}

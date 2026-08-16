@@ -34,7 +34,12 @@ if (Deno.build.os !== "windows") {
 }
 args.push("-Wall", "-Wextra", "-Werror");
 if (Deno.build.os === "darwin") {
-  args.push("-dynamiclib", "-Wl,-dead_strip");
+  args.push(
+    "-dynamiclib",
+    "-mmacosx-version-min=11.0",
+    "-Wl,-install_name,@rpath/libmtkruto_ige.dylib",
+    "-Wl,-dead_strip",
+  );
 } else if (Deno.build.os === "linux") {
   args.push("-shared", "-Wl,--no-undefined", "-Wl,-z,relro,-z,now");
 } else {

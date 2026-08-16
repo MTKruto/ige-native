@@ -2,12 +2,17 @@
   "name": "@mtkruto/ige-native",
   "version": "0.1.0",
   "license": "MIT",
-  "exports": "./mod.ts",
+  "exports": {
+    ".": "./mod.ts",
+    "./napi": "./napi/napi.js"
+  },
   "tasks": {
     "build": "deno run --allow-env --allow-read --allow-run --allow-write scripts/build.ts",
+    "build:napi": "npm --prefix napi run build:napi",
     "test": "deno task build && deno test --allow-ffi --allow-read tests/",
+    "test:napi": "npm --prefix napi test",
     "bench": "deno task build && deno bench --allow-ffi --allow-read benchmarks/",
-    "check": "deno fmt --check && deno lint && deno check mod.ts tests/provider_test.ts benchmarks/ige_bench.ts"
+    "check": "deno fmt --check && deno lint && deno check mod.ts napi/napi.js tests/provider_test.ts benchmarks/ige_bench.ts"
   },
   "imports": {
     "@roj/tgcrypto": "jsr:@roj/tgcrypto@1.0.3",
@@ -18,10 +23,11 @@
     "include": [
       "artifacts/",
       "mod.ts",
+      "napi/artifacts/",
+      "napi/napi.d.ts",
+      "napi/napi.js",
       "src/",
-      "COPYING",
-      "COPYING.LESSER",
-      "README.md"
+      "LICENSE"
     ]
   },
   "fmt": {
