@@ -15,6 +15,10 @@ typedef __m128i block128;
 #error "Only ARM64 and x86-64 are supported."
 #endif
 
+#if defined(MTKRUTO_X86_64) && defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 #if defined(__linux__) && defined(MTKRUTO_ARM64)
 #include <asm/hwcap.h>
 #include <sys/auxv.h>
@@ -157,7 +161,11 @@ static inline block128 decrypt_block(block128 block, const aes256_schedule *sche
 uint32_t mtkruto_ige_abi_version(void) { return 1; }
 
 int32_t mtkruto_ige256_supported(void) {
-#if defined(MTKRUTO_X86_64) && (defined(__GNUC__) || defined(__clang__))
+#if defined(MTKRUTO_X86_64) && defined(_MSC_VER)
+  int registers[4];
+  __cpuid(registers, 1);
+  return (registers[2] & (1U << 25)) != 0 ? 1 : 0;
+#elif defined(MTKRUTO_X86_64) && (defined(__GNUC__) || defined(__clang__))
   return __builtin_cpu_supports("aes") ? 1 : 0;
 #elif defined(MTKRUTO_ARM64) && defined(__linux__)
   return (getauxval(AT_HWCAP) & HWCAP_AES) != 0 ? 1 : 0;

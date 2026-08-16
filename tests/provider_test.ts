@@ -24,6 +24,17 @@ Deno.test("native AES-256-IGE matches the reference implementation", async (t) =
   const provider = openNativeIge();
 
   try {
+    assertEquals(provider.target, `${Deno.build.os}-${Deno.build.arch}`);
+    assert(provider.libraryPath instanceof URL);
+    assertEquals(
+      provider.libraryPath.pathname.split("/").at(-1),
+      Deno.build.os === "windows"
+        ? "mtkruto_ige.dll"
+        : Deno.build.os === "darwin"
+        ? "libmtkruto_ige.dylib"
+        : "libmtkruto_ige.so",
+    );
+
     await t.step("fixed vector", () => {
       const plaintext = Uint8Array.from({ length: 32 }, (_, i) => i);
       const key = Uint8Array.from({ length: 32 }, (_, i) => i);

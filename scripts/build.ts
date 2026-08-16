@@ -2,8 +2,9 @@ import { dirname, fromFileUrl, join } from "@std/path";
 
 function target(): string {
   if (
-    (Deno.build.os === "darwin" || Deno.build.os === "linux") &&
-    (Deno.build.arch === "aarch64" || Deno.build.arch === "x86_64")
+    ((Deno.build.os === "darwin" || Deno.build.os === "linux") &&
+      (Deno.build.arch === "aarch64" || Deno.build.arch === "x86_64")) ||
+    (Deno.build.os === "windows" && Deno.build.arch === "x86_64")
   ) {
     return `${Deno.build.os}-${Deno.build.arch}`;
   }
@@ -13,7 +14,12 @@ function target(): string {
 const root = dirname(dirname(fromFileUrl(import.meta.url)));
 const currentTarget = target();
 const outputDirectory = join(root, "artifacts", currentTarget);
-const output = join(outputDirectory, Deno.build.os === "darwin" ? "libmtkruto_ige.dylib" : "libmtkruto_ige.so");
+const filename = Deno.build.os === "darwin"
+  ? "libmtkruto_ige.dylib"
+  : Deno.build.os === "windows"
+  ? "mtkruto_ige.dll"
+  : "libmtkruto_ige.so";
+const output = join(outputDirectory, filename);
 const source = join(root, "native", "mtkruto_ige.c");
 await Deno.mkdir(outputDirectory, { recursive: true });
 
@@ -21,17 +27,18 @@ const args = [
   "-O3",
   "-DNDEBUG",
   "-std=c11",
-  "-fPIC",
-  "-fvisibility=hidden",
   "-fstack-protector-strong",
-  "-Wall",
-  "-Wextra",
-  "-Werror",
 ];
+if (Deno.build.os !== "windows") {
+  args.push("-fPIC", "-fvisibility=hidden");
+}
+args.push("-Wall", "-Wextra", "-Werror");
 if (Deno.build.os === "darwin") {
   args.push("-dynamiclib", "-Wl,-dead_strip");
-} else {
+} else if (Deno.build.os === "linux") {
   args.push("-shared", "-Wl,--no-undefined", "-Wl,-z,relro,-z,now");
+} else {
+  args.push("-shared");
 }
 args.push(...(Deno.build.arch === "aarch64" ? ["-march=armv8-a+crypto"] : ["-maes", "-msse2"]));
 args.push(source, "-o", output);

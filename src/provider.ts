@@ -18,7 +18,12 @@ const SYMBOLS = {
 } as const satisfies Deno.ForeignLibraryInterface;
 
 export type Ige256 = (data: Uint8Array, key: Uint8Array, iv: Uint8Array) => Uint8Array<ArrayBuffer>;
-export type NativeIgeTarget = "darwin-aarch64" | "darwin-x86_64" | "linux-aarch64" | "linux-x86_64";
+export type NativeIgeTarget =
+  | "darwin-aarch64"
+  | "darwin-x86_64"
+  | "linux-aarch64"
+  | "linux-x86_64"
+  | "windows-x86_64";
 
 export interface OpenNativeIgeOptions {
   libraryPath?: string | URL;
@@ -43,13 +48,19 @@ function currentTarget(): NativeIgeTarget {
     return "linux-aarch64";
   } else if (Deno.build.os === "linux" && Deno.build.arch === "x86_64") {
     return "linux-x86_64";
+  } else if (Deno.build.os === "windows" && Deno.build.arch === "x86_64") {
+    return "windows-x86_64";
   } else {
     throw new Deno.errors.NotSupported(`Native AES-IGE is not available for ${Deno.build.os}-${Deno.build.arch}.`);
   }
 }
 
 function defaultLibraryUrl(target: NativeIgeTarget): URL {
-  const filename = target.startsWith("darwin-") ? "libmtkruto_ige.dylib" : "libmtkruto_ige.so";
+  const filename = target.startsWith("darwin-")
+    ? "libmtkruto_ige.dylib"
+    : target.startsWith("windows-")
+    ? "mtkruto_ige.dll"
+    : "libmtkruto_ige.so";
   const url = new URL(`../artifacts/${target}/${filename}`, import.meta.url);
   if (url.protocol !== "file:") {
     throw new TypeError(
